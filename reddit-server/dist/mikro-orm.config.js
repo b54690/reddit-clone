@@ -5,8 +5,6 @@ const constants_1 = require("./constants");
 exports.default = {
     entities: [Post_1.Post],
     dbName: "reddit-clone",
-    user: "postgres",
-    password: "LetMeIn",
     type: "postgresql",
     debug: !constants_1._prod_,
 };

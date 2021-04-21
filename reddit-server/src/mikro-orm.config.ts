@@ -5,8 +5,6 @@ import { MikroORM } from "@mikro-orm/core";
 export default {
     entities: [Post],
     dbName: "reddit-clone",
-    user: "postgres",
-    password: "LetMeIn", 
     type: "postgresql",
     debug: !_prod_,
     // Turn on debuggin when not in production
