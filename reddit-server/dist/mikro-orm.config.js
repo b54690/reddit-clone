@@ -4,6 +4,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const Post_1 = require("./entities/Post");
+const User_1 = require("./entities/User");
 const constants_1 = require("./constants");
 const path_1 = __importDefault(require("path"));
 exports.default = {
@@ -12,7 +13,7 @@ exports.default = {
         pattern: /^[\w-]+\d+\.[tj]s$/,
         disableForeignKeys: false
     },
-    entities: [Post_1.Post],
+    entities: [Post_1.Post, User_1.User],
     dbName: "reddit-clone",
     type: "postgresql",
     debug: !constants_1._prod_,

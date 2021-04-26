@@ -26,7 +26,7 @@ export class PostResolver {
     ): Promise<Post> {
         const post = em.create(Post, {title});
         await em.persistAndFlush(post);
-       return post;
+        return post;
     }
 
     @Mutation(() => Post)
