@@ -26,14 +26,31 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UserResolver = void 0;
 const type_graphql_1 = require("type-graphql");
-const User_1 = require("src/entities/User");
+const User_1 = require("../entities/User");
 const argon2_1 = __importDefault(require("argon2"));
-let UserResponse = class UserResponse {
+let FieldError = class FieldError {
 };
 __decorate([
     type_graphql_1.Field(),
-    __metadata("design:type", Object)
-], UserResponse.prototype, "", void 0);
+    __metadata("design:type", String)
+], FieldError.prototype, "field", void 0);
+__decorate([
+    type_graphql_1.Field(),
+    __metadata("design:type", String)
+], FieldError.prototype, "message", void 0);
+FieldError = __decorate([
+    type_graphql_1.ObjectType()
+], FieldError);
+let UserResponse = class UserResponse {
+};
+__decorate([
+    type_graphql_1.Field(() => [FieldError], { nullable: true }),
+    __metadata("design:type", Array)
+], UserResponse.prototype, "errors", void 0);
+__decorate([
+    type_graphql_1.Field(() => User_1.User, { nullable: true }),
+    __metadata("design:type", User_1.User)
+], UserResponse.prototype, "user", void 0);
 UserResponse = __decorate([
     type_graphql_1.ObjectType()
 ], UserResponse);
@@ -48,7 +65,6 @@ __decorate([
     __metadata("design:type", String)
 ], UsernamePasswordInput.prototype, "password", void 0);
 UsernamePasswordInput = __decorate([
-    type_graphql_1.ObjectType(),
     type_graphql_1.InputType()
 ], UsernamePasswordInput);
 let UserResolver = class UserResolver {
@@ -60,6 +76,29 @@ let UserResolver = class UserResolver {
             return user;
         });
     }
+    login(options, { em }) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const user = yield em.findOne(User_1.User, { username: options.username });
+            if (!user) {
+                return {
+                    errors: [{
+                            field: "Username",
+                            message: "Username doesn't exist"
+                        }]
+                };
+            }
+            const valid = yield argon2_1.default.verify(user.password, options.password);
+            if (!valid) {
+                return {
+                    errors: [{
+                            field: "password",
+                            message: "incorrect password"
+                        }]
+                };
+            }
+            return { user };
+        });
+    }
 };
 __decorate([
     type_graphql_1.Mutation(() => User_1.User),
@@ -69,6 +108,14 @@ __decorate([
     __metadata("design:paramtypes", [UsernamePasswordInput, Object]),
     __metadata("design:returntype", Promise)
 ], UserResolver.prototype, "createUser", null);
+__decorate([
+    type_graphql_1.Mutation(() => UserResponse),
+    __param(0, type_graphql_1.Arg("options")),
+    __param(1, type_graphql_1.Ctx()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [UsernamePasswordInput, Object]),
+    __metadata("design:returntype", Promise)
+], UserResolver.prototype, "login", null);
 UserResolver = __decorate([
     type_graphql_1.Resolver()
 ], UserResolver);
