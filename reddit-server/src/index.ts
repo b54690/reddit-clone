@@ -8,6 +8,10 @@ import { buildSchema } from 'type-graphql';
 import { HelloResolver } from "./resolvers/hello";
 import { PostResolver } from "./resolvers/post";
 import { UserResolver } from "./resolvers/user";
+import redis from 'redis';
+import session from 'express-session';
+import connectRedis from 'connect-redis';
+import { MyContext } from "./types";
 
 // 1. Connect to database
 // 2. Run migrations
@@ -22,6 +26,31 @@ const main = async () => {
 
     const app = express();
 
+    const RedisStore = connectRedis(session);
+    const redisClient = redis.createClient();
+
+    app.use(
+        session({
+            name: 'qid',
+            store: new RedisStore({ 
+                client: redisClient,
+                disableTouch: true,
+            }),
+            // set graphQl "request.credentials": "include",
+            // consider using TTL parameter
+            // disable touch, reagrds resaving and restting the TTL
+            cookie: {
+                maxAge: 1000 * 60 * 60 * 24 * 365 * 10, // 10 years
+                httpOnly: true, // ensure you can't access the cookies in js
+                secure: _prod_, // cookie only works in https
+                sameSite: 'lax'
+            },
+            saveUninitialized: false,
+            secret: 'thisisarandomsecret',
+            resave: false,
+        })
+    )
+
     const apolloServer = new ApolloServer({
         schema: await buildSchema({
             resolvers: [
@@ -31,8 +60,9 @@ const main = async () => {
             ],
             validate: false
         }),
-        context: () => ({ em: orm.em })
+        context: ({ req, res }): MyContext => ({ em: orm.em, req, res })
         // Context object accessible by all resolvers
+        // Apollo allows us to access the express req and res objects via the context object
     });
 
     apolloServer.applyMiddleware({ app })
@@ -45,13 +75,6 @@ const main = async () => {
     app.listen(4000, () => {
         console.log('server started on localhost:4000')
     })
-
-    // const post = orm.em.create(Post, {title: "my first post"})
-    // if (post) {
-    //     await orm.em.persistAndFlush(post);
-    // }
-    // const posts = await orm.em.find(Post, {})
-    // console.log(posts, "===posts===")
 };
 
 main().catch((err) => {
