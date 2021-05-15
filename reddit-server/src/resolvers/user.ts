@@ -51,7 +51,7 @@ export class UserResolver {
     }
 
     @Mutation(() => UserResponse)
-    async createUser(
+    async register(
         @Arg("options") options: UsernamePasswordInput,
         @Ctx() {em, req }: MyContext
     ): Promise<UserResponse> {

@@ -12,6 +12,7 @@ import redis from 'redis';
 import session from 'express-session';
 import connectRedis from 'connect-redis';
 import { MyContext } from "./types";
+import cors from "cors";
 
 // 1. Connect to database
 // 2. Run migrations
@@ -28,6 +29,14 @@ const main = async () => {
 
     const RedisStore = connectRedis(session);
     const redisClient = redis.createClient();
+
+    app.use(
+        cors({
+            origin: "http://localhost:3000",
+            credentials: true 
+        })
+    )
+    // applies cors to all routes
 
     app.use(
         session({
@@ -65,7 +74,7 @@ const main = async () => {
         // Apollo allows us to access the express req and res objects via the context object
     });
 
-    apolloServer.applyMiddleware({ app })
+    apolloServer.applyMiddleware({ app, cors: false })
     // Creates a graphql endpoint on express
 
     app.get('/', (_, res) => {
