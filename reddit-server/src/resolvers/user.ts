@@ -13,9 +13,9 @@ declare module 'express-session' {
 @ObjectType()
 class FieldError {
     @Field()
-    field: string;
+    field!: string;
     @Field()
-    message: string;
+    message!: string;
 }
 
 @ObjectType()
@@ -30,9 +30,9 @@ class UserResponse {
 @InputType()
 class UsernamePasswordInput {
     @Field()
-    username: string;
+    username!: string;
     @Field()
-    password: string;
+    password!: string;
 }
 
 @Resolver()
