@@ -38,6 +38,14 @@ class UsernamePasswordInput {
 
 @Resolver()
 export class UserResolver {
+    @Mutation(() => Boolean)
+    async forgotPassword(
+        @Arg("email") email: string,
+        @Ctx() {em}: MyContext
+    ) {
+        return true;
+    }
+
     @Query(() => User, {nullable: true})
     async loggedIn(
         @Ctx() {req, em}: MyContext

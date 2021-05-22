@@ -41,7 +41,7 @@ export const createUrqlClient = (ssrExchange: any) => ({
           register: (_result, args, cache, info) => {
             cacheUpdateQuery<RegisterMutation, LoggedInQuery>(
               cache,
-              { query: RegisterDocument },
+              { query: LoggedInDocument },
               _result,
               (result, query) => {
                 if (result.register.errors) {

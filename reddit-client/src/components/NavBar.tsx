@@ -2,14 +2,18 @@ import React from 'react';
 import { Box, Link, Flex, Button } from '@chakra-ui/react';
 import NextLink from "next/link";
 import { useLoggedInQuery, useLogoutMutation } from '../generated/graphql';
+import { isServer } from '../../utils/isServer';
 
 interface NavBarProps {
 }
 
 const NavBar: React.FC<NavBarProps> = ({}) => {
     const [{ fetching: logoutFetching },logout] = useLogoutMutation()
-    const [{ data, fetching: loggedInFetching }] = useLoggedInQuery()
+    const [{ data, fetching: loggedInFetching }] = useLoggedInQuery({
+        pause: isServer()
+    })
     // deconstruct UseQueryState type
+    // pause key allows us to pause hook
     let body = null;
 
     if (loggedInFetching) {
@@ -26,7 +30,7 @@ const NavBar: React.FC<NavBarProps> = ({}) => {
                 <Link color="white">Register</Link>
             </NextLink>
             </>
-        )
+        ) 
     } else {
         // if user logged in
         body = (
